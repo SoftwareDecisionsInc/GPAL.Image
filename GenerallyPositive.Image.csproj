@@ -1,62 +1,50 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <TargetFramework>net48</TargetFramework>
     <ProjectGuid>{D1419371-3DD8-423D-86DD-4544FD883EE2}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GenerallyPositive.Image</RootNamespace>
     <AssemblyName>GPAL.Image</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <!-- AssemblyInfo.cs holds the version and the rest; the SDK must not write them a second time -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!-- bin\Debug and bin\Release as before, without a net48 folder under them -->
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\GPAL.Image.xml</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\GPAL.Image.xml</DocumentationFile>
   </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Image\GPALImage.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <PackageReference Include="OpenCvSharp4" Version="4.13.0.20260627" />
+    <PackageReference Include="OpenCvSharp4.Extensions" Version="4.13.0.20260627" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.13.0.20260627" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="OpenCvSharp4">
-      <Version>4.13.0.20260627</Version>
-    </PackageReference>
-    <PackageReference Include="OpenCvSharp4.Extensions">
-      <Version>4.13.0.20260627</Version>
-    </PackageReference>
-    <PackageReference Include="OpenCvSharp4.runtime.win">
-      <Version>4.13.0.20260627</Version>
-    </PackageReference>
-  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\GPAL\GenerallyPositive.csproj">
       <Project>{BBAD2AB5-F425-4CED-A3B0-34969FC1FEC1}</Project>
       <Name>GenerallyPositive</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

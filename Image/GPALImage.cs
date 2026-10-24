@@ -15,6 +15,7 @@
 // =============================================================================
 
 using System.Drawing;
+using System.Linq;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 
@@ -46,7 +47,10 @@ namespace GenerallyPositive.Image
         public static void Register()
         {
             if (true == System.Environment.Is64BitProcess)
+            {
                 GPAL.RegisterImageMatcher(new OpenCvImageMatcher());
+                GPAL.RegisterQRCodeReader(new OpenCvQRCodeReader());
+            }
             else
                 GPAL.PublishSimpleEvent(Enums.GPALEventType.WARNING, "GPAL.Image needs a 64-bit process, since OpenCV ships its native library for 64-bit Windows only, and this program is running 32-bit. Turn off Prefer 32-bit in the project's build settings, or target x64, so image selectors can match.");
         }
@@ -86,6 +90,64 @@ namespace GenerallyPositive.Image
 
                     if (best >= matchingPercentage * 0.01)
                         retVal = new Rectangle(bestAt.X, bestAt.Y, template.Width, template.Height);
+                }
+            }
+
+            return retVal;
+        }
+    }
+
+    /// <summary>
+    /// Reads a QR code with OpenCV's WeChat QR code reader, which finds the code anywhere on the picture. It runs
+    /// without its optional detection models; OpenCV's plain QRCodeDetector misses codes this one reads.
+    /// </summary>
+    internal sealed class OpenCvQRCodeReader : IQRCodeReader
+    {
+        /// <summary>Reads the QR code on <paramref name="image"/>.</summary>
+        /// <param name="image">A picture with a QR code anywhere on it</param>
+        /// <returns>The text the QR code holds, or an empty string when there is none</returns>
+        public string ReadQRCode(Bitmap image)
+        {
+            string retVal = "";
+
+            if (null == image)
+                GPAL.PublishSimpleEvent(Enums.GPALEventType.WARNING, "There is no picture to read a QR code from");
+            else
+            {
+                using (Mat source = image.ToMat())
+                using (Mat gray = new Mat())
+                using (WeChatQRCode reader = new WeChatQRCode("", "", "", ""))
+                {
+                    if (1 == source.Channels())
+                        source.CopyTo(gray);
+                    else
+                        Cv2.CvtColor(source, gray, 4 == source.Channels() ? ColorConversionCodes.BGRA2GRAY : ColorConversionCodes.BGR2GRAY);
+                    retVal = reader.DetectAndDecode(gray, out _).FirstOrDefault() ?? "";
+
+                    // a phone photo of a monitor carries the screen's pixel grid as a pattern over the code. A light
+                    // blur smooths a fine pattern out
+                    if (0 == retVal.Length)
+                    {
+                        using (Mat smoothed = new Mat())
+                        {
+                            Cv2.GaussianBlur(gray, smoothed, new OpenCvSharp.Size(3, 3), 0);
+                            retVal = reader.DetectAndDecode(smoothed, out _).FirstOrDefault() ?? "";
+                        }
+                    }
+
+                    // then the picture shrunk to a 1000, 900, 800 and 700 pixel long side in turn, until one reads
+                    foreach (int longSide in new[] { 1000, 900, 800, 700 })
+                    {
+                        if (0 == retVal.Length && longSide < System.Math.Max(gray.Width, gray.Height))
+                        {
+                            using (Mat shrunk = new Mat())
+                            {
+                                double scale = (double)longSide / System.Math.Max(gray.Width, gray.Height);
+                                Cv2.Resize(gray, shrunk, new OpenCvSharp.Size(), scale, scale, InterpolationFlags.Area);
+                                retVal = reader.DetectAndDecode(shrunk, out _).FirstOrDefault() ?? "";
+                            }
+                        }
+                    }
                 }
             }
 
