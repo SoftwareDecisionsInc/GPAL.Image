@@ -23,6 +23,19 @@ Selector logo = GPAL.Selector
 
 Without it, an image selector finds nothing and GPAL publishes a warning saying the package is needed.
 
+## QR codes
+
+The same registration lets GPAL read QR codes, such as the one a site shows when two-factor sign-in is turned
+on, or a Google Authenticator export holding every exported account. The secret it holds then makes the
+6-digit sign-in code:
+
+```csharp
+ICredentials fidelity = GPAL.CredentialsFor(CredentialServiceType.None)
+    .WithOtpQRCode((GPALFile)@"C:\secure\fidelity-qr.png")
+    .ToGPALObject();
+fidelity.GetOtpCode(out string code);
+```
+
 ## Requirements
 
 - .NET Framework 4.8 on Windows
@@ -34,8 +47,10 @@ Documentation: https://gpal.sditx.com/docs/concepts
 
 ## License
 
-Source available under the **Business Source License 1.1**, with the same Additional Use Grant as GPAL. Full terms: [LICENSE.md](./LICENSE.md).
+GPAL.Image is source available under the **Business Source License 1.1**, the same terms as GPAL. Full
+terms: [LICENSE.md](./LICENSE.md).
 
-Copyright (c) 2026 Software Decisions, Inc. All rights reserved.
+Copyright 2026 Software Decisions, Inc. All rights reserved.
 
-*This repository is a read only public release mirror. Development happens privately, and pull requests are not accepted here.*
+*This repository is a read only public release mirror. Development happens privately, and pull requests
+are not accepted here.*
