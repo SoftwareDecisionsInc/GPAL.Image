@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFrameworks>net48;net10.0-windows</TargetFrameworks>
     <ProjectGuid>{D1419371-3DD8-423D-86DD-4544FD883EE2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>GenerallyPositive.Image</RootNamespace>
@@ -8,8 +8,19 @@
     <Deterministic>true</Deterministic>
     <!-- AssemblyInfo.cs holds the version and the rest; the SDK must not write them a second time -->
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <!-- bin\Debug and bin\Release as before, without a net48 folder under them -->
+  </PropertyGroup>
+
+  <!-- net48 builds to bin\Debug and bin\Release as before, without a net48 folder under them -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <!-- net10 builds to bin\Debug\net10.0-windows and bin\Release\net10.0-windows -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- CA1416 flags Windows-only calls; the library is Windows-only, and the assembly-level
+         SupportedOSPlatform attribute is not written because AssemblyInfo.cs owns the attributes -->
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
@@ -31,7 +42,7 @@
     <DocumentationFile>bin\Release\GPAL.Image.xml</DocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
     <Reference Include="System.Drawing" />
   </ItemGroup>
 
